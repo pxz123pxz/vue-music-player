@@ -24,7 +24,9 @@
 - ![image](https://user-images.githubusercontent.com/61072719/184310474-217b4503-425f-47ba-bcc0-0fc8227883b7.png)
 - ![image](https://user-images.githubusercontent.com/61072719/184310679-8f47fac5-ff0d-4d2d-93af-5180550617cc.png)
 - ![image](https://user-images.githubusercontent.com/61072719/184310720-fc527e50-1817-42a4-a802-d793a4bb462a.png)
-- 
+- ![image](https://user-images.githubusercontent.com/61072719/184315131-4cb61a7d-5188-4050-89af-484298796904.png)
+- ![image](https://user-images.githubusercontent.com/61072719/184315245-5c67c8df-c1c5-48da-a14a-84cb86186564.png)
+
 ## 项目依赖安装
 ```
 npm install
