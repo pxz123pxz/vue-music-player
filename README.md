@@ -1,5 +1,5 @@
 # 音乐播放器
-## 此项目是一个音乐播放器的项目，UI页面参考qq音乐桌面端，后端接口使用 网易云音乐接口[https://neteasecloudmusicapi.vercel.app/#/]
+## 此项目是一个音乐播放器的项目，UI页面参考qq音乐桌面端，后端接口使用 [网易云音乐接口](https://neteasecloudmusicapi.vercel.app/#/)
  ### 实现的功能有：
 - 搜索音乐
 - 获取歌曲播放链接并播放歌曲
@@ -23,7 +23,6 @@
 ## 项目大致界面展示
 - ![image](https://user-images.githubusercontent.com/61072719/184310474-217b4503-425f-47ba-bcc0-0fc8227883b7.png)
 - ![image](https://user-images.githubusercontent.com/61072719/184310679-8f47fac5-ff0d-4d2d-93af-5180550617cc.png)
-- ![image](https://user-images.githubusercontent.com/61072719/184310678-fcaabfd5-750f-4122-a3b2-ad9f7d112598.png)
 - ![image](https://user-images.githubusercontent.com/61072719/184310720-fc527e50-1817-42a4-a802-d793a4bb462a.png)
 - 
 ## 项目依赖安装
