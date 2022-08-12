@@ -1,5 +1,6 @@
 # 音乐播放器
-## 此项目是一个音乐播放器的项目，UI页面参考qq音乐桌面端，后端接口使用 网易云音乐接口[https://neteasecloudmusicapi.vercel.app/#/]，实现的功能有：
+## 此项目是一个音乐播放器的项目，UI页面参考qq音乐桌面端，后端接口使用 网易云音乐接口[https://neteasecloudmusicapi.vercel.app/#/]
+ ### 实现的功能有：
 - 搜索音乐
 - 获取歌曲播放链接并播放歌曲
 - 暂停和继续播放
