@@ -7,7 +7,7 @@ import "nprogress/nprogress.css";
 
 // 利用axios对象的方法create，去创建一个axios实例
 const requests = axios.create({
-  baseUrl: "https://netease-cloud-music-api-five-beryl-41.vercel.app/",
+//   baseUrl: "https://netease-cloud-music-api-five-beryl-41.vercel.app/",
   target: process.env.VUE_APP_BASEURL_API,
   withCredentials: true, //允许请求携带cookie
   // 代表请求超时的时间为5s
