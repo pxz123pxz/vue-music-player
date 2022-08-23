@@ -12,4 +12,5 @@ module.exports = {
     proxy: "https://netease-cloud-music-api-five-beryl-41.vercel.app",
     // proxy: "http://localhost:3000",
   },
+  publicPath: '/'
 };
