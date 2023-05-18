@@ -70,11 +70,11 @@ export default {
     // 组件挂载时获取用户详情
     let account = JSON.parse(localStorage.getItem("account"));
     let response = await reqGetUserInfo(account.id);
-    console.log("用户详情", response);
+    // console.log("用户详情", response);
     this.$store.dispatch("getUserInfo", response);
     // 获取歌单信息
     let playlistResponse = await reqGetUserPlayList(account.id);
-    console.log("歌单信息", playlistResponse);
+    // console.log("歌单信息", playlistResponse);
     this.$store.dispatch("getPlayList", playlistResponse.playlist);
   },
 };

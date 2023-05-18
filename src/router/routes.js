@@ -11,10 +11,11 @@ VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch((err) => err);
 };
 // 导入路由组件
-import MusicContent from "@/pages/MusicContent";
+import Search from "@/pages/Search";
 import MyFavrouiteMusic from "@/pages/MyFavrouiteMusic";
 import UserHomePage from "@/pages/UserHomePage";
 import FindMusic from "@/pages/FindMusic";
+import PlayList from "@/pages/PlayList";
 // 创建router实例对象，统一管理路由规则
 let router = new VueRouter({
   // 滚动行为
@@ -22,10 +23,12 @@ let router = new VueRouter({
     // 返回的这个y=0，代表的滚动条在最上方
     return { y: 0 };
   },
+  mode: "hash",
   routes: [
     {
-      path: "/musiccontent",
-      component: MusicContent,
+      path: "/search",
+      component: Search,
+      
     },
     {
       path: "/myfavouritemusic",

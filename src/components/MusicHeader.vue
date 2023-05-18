@@ -63,8 +63,7 @@
 </template>
 
 <script>
-import { Message } from "element-ui";
-import { reqLoginStatus, logoutAccount } from "@/api/index";
+import { logoutAccount } from "@/api/index";
 export default {
   name: "MusicHeader",
   data() {
@@ -72,7 +71,6 @@ export default {
       inputKey: "", //搜索的关键字
       isLogin: false,
       quitLogin: false,
-      // profile: {},
     };
   },
   computed: {
@@ -97,19 +95,18 @@ export default {
       // 点击退出登录后
       // 改变登录区的状态
       let result = await logoutAccount();
-      console.log(result);
+      // console.log(result);
       if (result.code === 200) {
         this.isLogin = false;
         this.quitLogin = false;
         // 清除本地缓存
         localStorage.clear();
-        Message({
+        this.$message({
           message: "你已退出登录！",
           type: "success",
         });
+        this.$bus.$emit("changeLoginStaus", false);
       }
-      // this.isLogin = false;
-      // this.quitLogin = false;
     },
     // 点击登录，弹出登录框
     Login() {
@@ -122,9 +119,10 @@ export default {
         alert("输入内容不能为空");
       } else {
         this.$router.push({
-          path: "/musiccontent",
+          path: "/search",
           query: {
             keywords: this.inputKey,
+            type: 1,
           },
         });
       }
@@ -136,17 +134,16 @@ export default {
       });
     },
   },
-  async mounted() {
+  mounted() {
     this.$bus.$on("changeLoginStaus", (data) => {
       this.isLogin = data;
     });
     // 查看登录状态
-    let result = await reqLoginStatus();
-    console.log(result);
-    if (result.data.profile !== null) {
+
+    let token = localStorage.getItem("token");
+    // 如果存在token，说明用户还处于登录状态
+    if (token) {
       this.isLogin = true;
-      // 存储用户信息
-      // this.profile = result.data.data.profile;
     } else {
       this.isLogin = false;
     }

@@ -2,19 +2,19 @@
 import requests from "./aiax";
 
 // 搜索音乐
-export const reqSongList = (keyword) =>
+export const reqSongList = (keyword, type) =>
   requests({
-    url: `/search`,
-    method: "post",
-    params: { keywords: keyword, timestamp: new Date().getTime() },
+    url: `/cloudsearch`,
+    method: "get",
+    params: { keywords: keyword, type: type || 1 },
   });
 
 // 获取歌曲链接
 export const reqGetSongPlayLink = (songid) =>
   requests({
     url: `/song/url`,
-    method: "post",
-    params: { id: songid, timestamp: new Date().getTime() },
+    method: "get",
+    params: { id: songid },
   });
 
 //获取歌词
@@ -24,18 +24,6 @@ export const reqGetMusicLyric = (songid) =>
 // 检查音乐是否可用
 export const reqCheckMusicIsUse = (songid) =>
   requests({ url: `/check/music`, method: "get", params: { id: songid } });
-
-// 获取专辑信息，主要是封面
-export const reqGetAlbumMsg = (albumid) =>
-  requests({ url: `album`, method: "get", params: { id: albumid } });
-
-// 获取登录状态
-export const reqLoginStatus = () =>
-  requests({
-    url: `/login/status`,
-    method: "get",
-    timestamp: new Date().getTime(),
-  });
 
 // 发送验证码
 export const sendCaptcha = (phone) =>
@@ -53,15 +41,15 @@ export const verifyCaptcha = (phone, captcha) =>
 export const loginAccount = (phone, captcha) =>
   requests({
     url: `/login/cellphone`,
-    method: "get",
-    params: { phone: phone, captcha: captcha, timestamp: new Date().getTime() },
+    method: "post",
+    params: { phone: phone, captcha: captcha },
   });
 
 // 退出登录
 export const logoutAccount = () =>
   requests({
     url: `/logout`,
-    method: "get",
+    method: "post",
     params: { timestamp: new Date().getTime() },
   });
 
@@ -80,3 +68,6 @@ export const reqGetLikeMusciList = (uid) =>
 // 获取歌曲详情
 export const reqGetMusicInfo = (ids) =>
   requests({ url: "/song/detail", method: "get", params: { ids: ids } });
+
+// 获取首页轮播图数据
+export const reqGetBanner = () => requests({ url: "/banner", method: "get" });

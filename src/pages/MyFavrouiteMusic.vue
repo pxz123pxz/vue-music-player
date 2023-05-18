@@ -2,13 +2,9 @@
   <div class="musicLove-container">
     <h1>我喜欢的音乐</h1>
     <div class="nav-search">
-      <div>歌曲</div>
-      <div>视频</div>
-      <div>专辑</div>
-      <div>歌单</div>
-      <div>歌词</div>
-      <div>歌手</div>
-      <div>用户</div>
+      <div class="active navitem"><span>歌曲</span></div>
+      <div class="navitem"><span>评论</span></div>
+      <div class="navitem"><span>收藏者</span></div>
     </div>
     <div class="tool-bar">
       <div class="tool-item bgcolor">
@@ -24,84 +20,21 @@
         批量操作
       </div>
     </div>
-    <div class="music-list-container">
-      <div class="music-list-title">
-        <div class="title-item">歌曲</div>
-        <div class="title-item">歌手</div>
-        <div class="title-item">专辑</div>
-        <div class="title-item">时长</div>
-      </div>
-      <div class="music-list">
-        <div
-          class="music-item"
-          v-for="(music, key) in LikeMusicList"
-          :key="key"
-          :class="{ 'current-music': music.id === songmid ? true : false }"
-        >
-          <div class="music-name" :title="music.name">
-            <i class="iconfont icon-aixin"></i>
-            <span>{{ music.name }}</span>
-          </div>
-          <div class="music-mod-menu">
-            <a
-              href="javascript:;"
-              title="播放"
-              @click="
-                playMusic(
-                  music.id,
-                  music.name,
-                  music.ar.map((songer) => songer.name).join('/'),
-                  music.al.id,
-                  music.al.name
-                )
-              "
-            >
-              <i
-                class="iconfont icon-24gl-play"
-                v-show="(music.id === songmid ? false : true) || !isPlay"
-              ></i>
-              <i
-                class="iconfont icon-bofangzanting"
-                v-show="isPlay && music.id === songmid ? true : false"
-              ></i>
-            </a>
-            <a href="#" title="添加到">
-              <i class="iconfont icon-tianjiadao"></i>
-            </a>
-            <a href="#" title="下载">
-              <i class="iconfont icon-xiazai"></i>
-            </a>
-            <a href="#" title="更多操作">
-              <i class="iconfont icon-gengduocaozuo"></i>
-            </a>
-          </div>
-          <div
-            class="music-songer"
-            :title="music.ar.map((songer) => songer.name).join('/')"
-          >
-            <span>{{ music.ar.map((songer) => songer.name).join("/") }} </span>
-          </div>
-          <div class="music-ablum">
-            <span :title="music.al.name">{{ music.al.name }}</span>
-          </div>
-          <div class="music-time">
-            <span>{{ getFormatTime(music.dt) }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <PlayList
+      :musicList="LikeMusicList"
+      :isPlay="isPlay"
+      :songmid="songmid"
+    ></PlayList>
   </div>
 </template>
 
 <script>
-import {
-  reqGetLikeMusciList,
-  reqSongList,
-  reqGetMusicLyric,
-} from "@/api/index";
+import PlayList from '@/pages/PlayList'
+import { reqGetLikeMusciList } from "@/api/index";
 import { mapState } from "vuex";
 export default {
   name: "MyFavrouiteMusic",
+  components: {PlayList},
   computed: {
     ...mapState({
       LikeMusicList: (state) => state.userinfo.likeMusicList,
@@ -110,62 +43,12 @@ export default {
     }),
   },
   methods: {
-    async playMusic(songmid, songname, singername, albumid, albumname) {
-      // 获取歌词
-      let result = await reqGetMusicLyric(songmid);
-      console.log(result);
-      if (result.code === 200) {
-        let musicLyric = result.lrc.lyric;
-        // 获取歌词，存储到vuex中
-        this.$store.dispatch("getMusicLyric", musicLyric);
-
-        // console.log(typeof(musicLyric));
-        this.$store.dispatch("getLinkAndAlbum", {
-          songmid: songmid,
-          songname: songname,
-          singername: singername,
-          albumid: albumid,
-          albumname: albumname,
-        });
-        // 路由跳转
-        this.$router.push({
-          path: "/myfavouritemusic",
-          query: {
-            musicname: songname,
-            musicid: songmid,
-          },
-        });
-      }
-    },
-    // 将时间格式化为00:00的形式
-    getFormatTime(time) {
-      time = Math.floor(time / 1000);
-      let m =
-        Math.floor(time / 60) < 10
-          ? "0" + Math.floor(time / 60)
-          : Math.floor(time / 60);
-      let s =
-        Math.floor(time % 60) < 10
-          ? "0" + Math.floor(time % 60)
-          : Math.floor(time % 60);
-      return m + ":" + s;
-    },
-    // 通过关键词搜索歌曲
-    async getMusicList() {
-      this.loading = true;
-      let response = await reqSongList(this.$route.query.keywords);
-      console.log(response);
-      if (response.code === 200) {
-        this.$store.dispatch("getMusicList", response.result.songs);
-        this.loading = false;
-      }
-    },
     // 获取喜欢的音乐列表
     async getLikeMusicList() {
       let token = localStorage.getItem("token");
       if (token) {
         let LikeMusicResponse = await reqGetLikeMusciList();
-        console.log("喜欢的音乐", LikeMusicResponse);
+        // console.log("喜欢的音乐", LikeMusicResponse);
         this.$store.dispatch("getLikeMusicIds", LikeMusicResponse.ids);
       }
     },
@@ -189,11 +72,33 @@ export default {
     display: flex;
     align-items: center;
     height: 40px;
-    width: 420px;
+    width: 220px;
     margin-left: 16px;
     justify-content: space-around;
     color: rgb(55, 53, 53);
     font-size: 15px;
+    margin-bottom: 15px;
+    .navitem {
+      cursor: pointer;
+    }
+    .navitem:hover {
+      color: rgb(31, 211, 172);
+    }
+    .active {
+      color: rgb(31, 211, 172);
+      position: relative;
+    }
+    .active:after {
+      content: "";
+      position: absolute;
+      top: 20px;
+      left: 0;
+      width: 30px;
+      height: 2px;
+      background-color: rgb(31, 211, 172);
+      border: 1px solid rgb(31, 211, 172);
+      border-radius: 3px;
+    }
   }
 
   .tool-bar {

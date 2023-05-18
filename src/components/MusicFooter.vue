@@ -2,28 +2,18 @@
   <div class="footer">
     <div class="audio-container">
       <audio
-        autoPlay
+        autoplay
         preload="metadata"
         :src="link"
         ref="Audio"
+        crossorigin="anonymous"
         @playing="updatePlay"
         @pause="updatePause"
         @play="getDuration"
         @timeupdate="getCurrentTime"
       ></audio>
-      <input
-        type="range"
-        id="progress"
-        step="any"
-        v-model.number="width"
-        min="0"
-        max="100"
-        @click="changeProgess"
-        @mousedown="MouseDown"
-        @mousemove="MouseMove"
-        @mouseup="MouseUp"
-      />
-      <div class="audioContainer">
+      <Progress></Progress>
+      <div class="toolContainer">
         <!-- 歌曲小封面部分 -->
         <div class="musiccover">
           <div
@@ -78,7 +68,7 @@
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { reqGetMusicLyric } from "@/api/index";
+import formatTime from "@/tools/formatTime";
 export default {
   name: "MusicFooter",
   data() {
@@ -89,120 +79,73 @@ export default {
       audio: null,
       currentTime: 0,
       width: 0,
-      isDrag: false,
+      drag: false,
     };
   },
   methods: {
     // 暂停音乐
     pauseMuisc() {
-      // let audio = this.$refs.Audio;
       this.audio.pause();
-      this.isPlay = false;
     },
     // 播放音乐
     playMusic() {
-      // let audio = this.$refs.Audio;
       this.audio.play();
-      this.isPlay = true;
     },
-    // 获取歌曲的长度
     getDuration() {
-      // let audio = this.$refs.Audio;
       this.duration = this.audio.duration;
-      // console.log(audio.currentTime)
     },
     // 获取歌曲当前的播放时间
     getCurrentTime() {
       this.currentTime = this.audio.currentTime;
+      // 拖动进度条时执行
+      if (!this.drag) {
+        this.width = (this.currentTime / this.duration) * 100;
+        this.$store.dispatch("getMusicCurrentTime", {
+          currentTime: this.currentTime,
+          totalTime: this.totalTime,
+          updateTotalTime: this.updateTotalTime,
+          audio: this.audio,
+          width: this.width,
+          duration: this.duration,
+          isPlay: this.isPlay,
+        });
+      }
     },
-    // 点击封面，出现歌词页面,并发送请求，获取歌词
-    async controlLyric() {
-      this.$bus.$emit("showLyric", true);
-    },
+    // 监听audio播放状态，如果为播放状态，则显示暂停按钮
     updatePlay() {
       this.isPlay = true;
       this.$store.dispatch("updateAudioStatus", this.isPlay);
     },
+    // 监听audio播放状态，如果为暂停状态，则显示播放按钮
     updatePause() {
       this.isPlay = false;
       this.$store.dispatch("updateAudioStatus", this.isPlay);
     },
-
-    MouseDown() {
-      this.isDrag = true; //鼠标开始按下
-    },
-    MouseMove() {
-      // 如果鼠标按下了，开始计算播放时间
-      if (this.isDrag) {
-        this.currentTime = (this.width / 100) * this.duration;
-      }
-    },
-    MouseUp() {
-      this.audio.currentTime = (this.width / 100) * this.duration;
-      this.isDrag = false;
-
-      // this.audio.play();
-    },
-    // 点击进度条的某个部分，切换进度
-    changeProgess() {
-      // console.log(this.width);
-      this.currentTime = (this.width / 100) * this.duration;
-      this.audio.currentTime = (this.width / 100) * this.duration;
+    // 点击封面，出现歌词页面,获取歌词
+    controlLyric() {
+      this.$bus.$emit("showLyric", true);
     },
   },
   computed: {
-    // 歌曲的总时长
-    totalTime() {
-      let m =
-        Math.floor(this.duration / 60) < 10
-          ? "0" + Math.floor(this.duration / 60)
-          : Math.floor(this.duration / 60);
-      let s =
-        Math.floor(this.duration % 60) < 10
-          ? "0" + Math.floor(this.duration % 60)
-          : Math.floor(this.duration % 60);
-      let result = m + ":" + s;
-      return result;
-    },
-    // 歌曲播放中的总时长，随着歌曲的进度该表
-    updateTotalTime() {
-      let m =
-        Math.floor(this.currentTime / 60) < 10
-          ? "0" + Math.floor(this.currentTime / 60)
-          : Math.floor(this.currentTime / 60);
-      let s =
-        Math.floor(this.currentTime % 60) < 10
-          ? "0" + Math.floor(this.currentTime % 60)
-          : Math.floor(this.currentTime % 60);
-      let updateresult = m + ":" + s;
-      return updateresult;
-    },
     ...mapGetters({
       albumImageUrl: "albumImage",
     }),
+    // 歌曲的总时长
+    totalTime() {
+      return formatTime(this.duration);
+    },
+    // 歌曲播放中的总时长，随着歌曲的进度该表
+    updateTotalTime() {
+      return formatTime(this.currentTime);
+    },
     ...mapState({
       link: (state) => state.lyric.link,
-      songmid: (state) => state.lyric.songmid,
       songname: (state) => state.lyric.songname,
       singername: (state) => state.lyric.singername,
     }),
+    
   },
   watch: {
-    // 歌曲自动播放时，监听歌曲播放的位置，并动态更改进度条的位置
-    currentTime() {
-      let range = (this.currentTime / this.duration) * 100;
-      this.width = range;
-      // 获取歌曲当前播放的时间，并存储到vuex中
-      this.$store.dispatch("getMusicCurrentTime", {
-        currentTime: this.currentTime,
-        totalTime: this.totalTime,
-        updateTotalTime: this.updateTotalTime,
-        audio: this.audio,
-        width: this.width,
-        duration: this.duration,
-        isPlay: this.isPlay,
-      });
-    },
     link() {
       this.isPlay = true;
       //切换歌曲时，将进度条宽度设置为0
@@ -212,9 +155,13 @@ export default {
   mounted() {
     // 组件挂载，就获取audio元素
     this.audio = this.$refs.Audio;
-    // if (this.link) {
-
-    // }
+    this.$bus.$on("changeProgress", (data) => {
+      this.audio.currentTime = data;
+      this.audio.play();
+    });
+    this.$bus.$on("changeDrag", (data) => {
+      this.drag = data;
+    })
   },
 };
 </script>
@@ -223,99 +170,104 @@ export default {
 // footer部分
 .footer {
   flex: 0.8;
-  #progress {
-    width: 100%;
-    height: 2px;
-    cursor: pointer;
-  }
-  .audioContainer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-
-    .musiccover {
+  .audio-container {
+    .block {
+      width: 99%;
+      //强制修改样式，解决在歌词页面出现的情况
+      /deep/.el-slider__button-wrapper {
+        z-index: 0;
+      }
+    }
+    .toolContainer {
       display: flex;
-      flex: 1;
       align-items: center;
-      margin-top: 10px;
-      margin-left: 20px;
-      .coverimage-container {
-        width: 40px;
-        height: 40px;
+      justify-content: space-between;
+      margin-bottom: 8px;
 
-        img {
-          width: 100%;
-          height: 100%;
-          border-radius: 5px;
-        }
-      }
-      .music-settle {
+      .musiccover {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        margin-top: 10px;
         margin-left: 20px;
-        .music-message {
-          font-size: 12px;
-          width: 100px;
-          height: 20px;
-          line-height: 20px;
-          margin-bottom: 10px;
-          color: rgb(19, 19, 19);
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          cursor: pointer;
-        }
-        .iconitem {
-          color: rgba(75, 74, 72, 0.733);
-          font-size: 18px;
-          margin-right: 10px;
-          cursor: pointer;
-        }
-        .aixin {
-          color: rgb(255, 106, 106);
-        }
-      }
-    }
-    .playControl-warpper {
-      flex: 1;
-      // width: 250px;
-      margin-top: 10px;
-      margin-left: 160px;
-      .bofangzanting {
-        display: inline-block;
-        width: 35px;
-        height: 35px;
-        line-height: 35px;
-        border: 1px solid rgb(30, 207, 159);
-        background: rgb(30, 207, 159);
-        border-radius: 50%;
-        margin-right: 10px;
-        .bofang {
-          padding-left: 7px;
-          font-size: 23px;
-          color: rgb(246, 246, 246);
-          cursor: pointer;
-        }
-        .zangting {
-          padding-left: 6px;
-          font-size: 23px;
-          color: rgb(246, 246, 246);
-          cursor: pointer;
-        }
-      }
-      .playitem {
-        margin-right: 10px;
-        font-size: 22px;
         cursor: pointer;
+        .coverimage-container {
+          width: 40px;
+          height: 40px;
+
+          img {
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+          }
+        }
+        .music-settle {
+          margin-left: 20px;
+          .music-message {
+            font-size: 12px;
+            width: 100px;
+            height: 20px;
+            line-height: 20px;
+            margin-bottom: 10px;
+            color: rgb(19, 19, 19);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+          }
+          .iconitem {
+            color: rgba(75, 74, 72, 0.733);
+            font-size: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+          }
+          .aixin {
+            color: rgb(255, 106, 106);
+          }
+        }
       }
-    }
-    .timeContainer {
-      flex: 1;
-      display: flex;
-      justify-content: flex-end;
-      padding-right: 60px;
-      margin-top: 10px;
-      font-size: 12px;
-      color: rgb(84, 78, 78);
+      .playControl-warpper {
+        flex: 1;
+        // width: 250px;
+        margin-top: 10px;
+        margin-left: 160px;
+        .bofangzanting {
+          display: inline-block;
+          width: 35px;
+          height: 35px;
+          line-height: 35px;
+          border: 1px solid rgb(30, 207, 159);
+          background: rgb(30, 207, 159);
+          border-radius: 50%;
+          margin-right: 10px;
+          .bofang {
+            padding-left: 7px;
+            font-size: 23px;
+            color: rgb(246, 246, 246);
+            cursor: pointer;
+          }
+          .zangting {
+            padding-left: 6px;
+            font-size: 23px;
+            color: rgb(246, 246, 246);
+            cursor: pointer;
+          }
+        }
+        .playitem {
+          margin-right: 10px;
+          font-size: 22px;
+          cursor: pointer;
+        }
+      }
+      .timeContainer {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 60px;
+        margin-top: 10px;
+        font-size: 12px;
+        color: rgb(84, 78, 78);
+      }
     }
   }
 }

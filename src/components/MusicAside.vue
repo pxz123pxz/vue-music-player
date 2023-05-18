@@ -11,7 +11,7 @@
           <span>在线音乐</span>
         </div>
         <ul class="online-list music">
-          <li @click="goToFindMusic" :class="{ change: ischange }">
+          <li @click="goToFindMusic" :class="{ change: ischange && $route.path === '/findmusic' }">
             <i class="iconfont icon-tuijian"></i>
             <span>发现</span>
           </li>
@@ -42,31 +42,17 @@
             <i class="iconfont icon-shouye_zuijinbofang_"></i>
             <span>最近播放</span>
           </li>
-          <li>
-            <i class="iconfont icon-yigouyinle40"></i>
-            <span>已购音乐</span>
-          </li>
+          
         </ul>
       </div>
-      <div class="created-list">
+      <div class="created-list" v-if="loginStaus">
         <div class="title">
           <span>创建的歌单</span>
         </div>
         <ul class="year-list music">
-          <li @click="goToMyLikeMusic" :class="{ change: ischange }">
+          <li @click="goToMyLikeMusic" :class="{ change: ischange && $route.path === '/myfavouritemusic'}">
             <i class="iconfont icon-3aixin"></i>
             <span title="我喜欢的音乐">我喜欢的音乐</span>
-          </li>
-        </ul>
-      </div>
-      <div class="collect-list">
-        <div class="title">
-          <span>收藏的歌单</span>
-        </div>
-        <ul class="year-list music">
-          <li>
-            <i class="iconfont icon-shitingliebiao"></i>
-            <span title="秋风扫落叶的年度歌单">慵懒R&B 一个人时的随性浪漫</span>
           </li>
         </ul>
       </div>
@@ -80,6 +66,7 @@ export default {
   data() {
     return {
       ischange: false, //是否跳转路由
+      loginStaus: false //登录状态(通过token来判断)
     };
   },
   methods: {
@@ -98,6 +85,7 @@ export default {
     routePath() {
       return this.$route.path;
     },
+
   },
   watch: {
     // 监听路由路径，如果路径不等于我喜欢界面的路径，则将我喜欢的高亮样式取消
@@ -109,6 +97,17 @@ export default {
       }
     },
   },
+  mounted() {
+    this.$bus.$on("changeLoginStaus", (data) => {
+      this.loginStaus = data;
+    });
+    let token = localStorage.getItem("token");
+    if(token) {
+      this.loginStaus = true;
+    } else {
+      this.loginStaus = false;
+    }
+  }
 };
 </script>
 

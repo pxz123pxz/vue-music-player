@@ -1,7 +1,6 @@
 <template>
   <div class="center">
     <MusicHeader></MusicHeader>
-    <!-- <MusicContent></MusicContent> -->
     <router-view></router-view>
     <MusicFooter></MusicFooter>
   </div>

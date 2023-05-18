@@ -4,7 +4,7 @@
       class="iconfont icon-guanbi closebtn"
       @click="showLoginPlatform = !showLoginPlatform"
     ></span>
-    <h1>登录账号</h1>
+    <h1>登录网易云账号</h1>
     <input
       type="text"
       class="inputlogin"
@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import { Message } from "element-ui";
 import { sendCaptcha, verifyCaptcha, loginAccount } from "@/api/index";
 export default {
   name: "LoginInterface",
@@ -45,19 +44,26 @@ export default {
   methods: {
     // 登录账号
     async goToLogin() {
-      if (this.phone === "" && this.captcha === "") {
-        Message({
-          message: "请输入账号和验证码",
+      if (this.phone === "" || this.captcha === "") {
+        this.$message({
+          message: "请输入账号或验证码",
           type: "warning",
         });
       } else {
         // 先验证账号与验证码是否正确
         let result = await verifyCaptcha(this.phone, this.captcha);
+        console.log(result)
         // 如果验证码正确，再进行登录
         if (result.code == 200) {
-          let result2 = await loginAccount(this.phone, this.captcha);
-          console.log("登录：", result2);
+          try {
+            let result2 = await loginAccount(this.phone, this.captcha);
+            console.log("登录：", result2);
+          } catch (e) {
+            console.log(e);
+          }
+
           // 如果登录成功
+          /*
           if (result2.code == 200) {
             // 修改登录框的状态
             this.$bus.$emit("startLogin", false);
@@ -66,13 +72,13 @@ export default {
             localStorage.setItem("account", JSON.stringify(result2.account));
             localStorage.setItem("token", result2.token);
             // 弹出登录成功的提示
-            Message({
+            this.$message({
               message: "恭喜你，登录成功",
               type: "success",
             });
-          }
+          }*/
         } else {
-          Message({
+          this.$message({
             message: "验证码和账号有误，请重新检查账号和验证码",
             type: "error",
           });
@@ -83,9 +89,13 @@ export default {
     async getCaptcha() {
       if (this.phone) {
         let result = await sendCaptcha(this.phone);
-        console.log("发送验证码：", result);
+        // console.log("发送验证码：", result);
         // 如果发送成功
         if (result.code == 200) {
+          this.$message({
+            message: "验证码发送成功",
+            type: "success",
+          });
           this.isSend = true;
           this.times = 60; //如果有多次发送验证码，则重置倒计时
           // 发送成功，显示倒计时重新发送
@@ -99,13 +109,15 @@ export default {
           }, 1000);
         }
       } else {
-        alert("请输入手机号");
+        this.$message({
+          message: "请输入手机号",
+          type: "warning",
+        });
       }
     },
   },
   mounted() {
     this.$bus.$on("startLogin", (data) => {
-      // console.log(this.showLoginPlatform, data);
       this.showLoginPlatform = data;
     });
   },

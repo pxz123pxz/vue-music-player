@@ -1,9 +1,4 @@
-import { Message } from "element-ui";
-import {
-  reqCheckMusicIsUse,
-  reqGetSongPlayLink,
-  reqGetAlbumMsg,
-} from "@/api/index";
+import { reqCheckMusicIsUse, reqGetSongPlayLink } from "@/api/index";
 const state = {
   musicLyric: "",
   currentTime: "",
@@ -14,7 +9,7 @@ const state = {
   link: "",
   duration: 0,
   isPlay: false,
-  songmid: "",
+  songmid: 0,
   albumurl: "",
   songname: "",
   singername: "",
@@ -46,44 +41,35 @@ const actions = {
   },
   async getLinkAndAlbum(
     context,
-    { songmid, songname, singername, albumid, albumname }
+    { songmid, songname, singername, albumurl, albumname }
   ) {
     // 先检查音乐是否可用，有些没有版权无法播放
     let response = await reqCheckMusicIsUse(songmid);
-    console.log("是否有版权：" + response["success"]);
+    // console.log("是否有版权：", response, response["success"]);
     if (response["success"] === true) {
       // 获取播放链接
       let response = await reqGetSongPlayLink(songmid);
-      // console.log(response);
       if (response.code === 200) {
         let playlink = response.data[0].url;
-        console.log(playlink);
+        // console.log(playlink);
         // 获取专辑信息(专辑封面)
-        let albumResponse = await reqGetAlbumMsg(albumid);
-        console.log("专辑信息", albumResponse);
-        let albumurl = albumResponse.songs[0].al.picUrl;
-        // 如果专辑封面为空，则使用默认封面
-        if (albumurl === "") {
-          albumurl =
-            "https://p2.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885805.jpg";
-        }
         context.commit("GETLINKANDALBUM", {
           songmid,
           songname,
           singername,
-          albumid,
           playlink,
           albumurl,
           albumname,
         });
       } else {
-        Message({
+        // vuex里面的this的_vm指向vue实例
+        this._vm.$message({
           message: `播放链接出现问题了`,
           type: "error",
         });
       }
     } else {
-      Message({
+      this._vm.$message({
         message: `${response["message"]} 或者 登录后使用`,
         type: "error",
       });
@@ -110,6 +96,7 @@ const mutations = {
     state.width = width;
     state.currentTime = currentTime;
   },
+  // 修改播放状态，目的是切换播放的暂停的按钮样式
   UPDATEAUDIOSTATUS(state, isPlay) {
     state.isPlay = isPlay;
   },

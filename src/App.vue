@@ -15,6 +15,12 @@ import LoginInterface from "@/components/LoginInterface";
 export default {
   name: "App",
   components: { MusicAside, MusicCenter, MusicLyric, LoginInterface },
+  // 禁止选中内容
+  created() {
+    this.$nextTick(() => {
+      document.onselectstart = new Function("event.returnValue=false");
+    });
+  },
 };
 </script>
 
