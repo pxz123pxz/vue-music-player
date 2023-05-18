@@ -4,7 +4,14 @@ import axios from "axios";
 
 // 利用axios对象的方法create，去创建一个axios实例
 const requests = axios.create({
+<<<<<<< HEAD
   baseURL: "api",
+=======
+  baseUrl:
+  process.env.NODE_ENV === "production"
+      ? ""
+      : "https://netease-cloud-music-api-five-beryl-41.vercel.app/",
+>>>>>>> 1d486bca11ad1bc552d2a5f2397c2bce37f9d2ad
   withCredentials: true, //允许请求携带cookie
   paramsSerializer: function (params) {
     //对params参数进行序列化
